@@ -1,0 +1,11 @@
+[package]
+name = "endianbytes"
+version = "0.1.0"
+edition = "2024"
+readme = "Readme.md"
+license = "MIT OR Apache-2.0"
+authors = ["Lord-Giganticus"]
+repository = "https://github.com/Lord-Giganticus/endianbytes"
+description = "An implementation of upcoming rust feature read_le_be, and a write variant too."
+
+[dependencies]
