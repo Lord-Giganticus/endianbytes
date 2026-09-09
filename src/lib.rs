@@ -185,7 +185,7 @@ impl<F: FromEndianBytes, const N: usize> FromEndianBytes for [F; N]
 /// A trait for writing endian dependant bytes of a Sized type to a [Write] object.
 /// 
 /// Inspired by Nightly PR [#156984](https://github.com/rust-lang/rust/issues/156984)
-pub trait ToEndianBytes : Sized {
+pub trait ToEndianBytes {
     /// Writes `Self` to a `&mut impl Write` in **LITTLE ENDIAN**.
     fn write_le_to(&self, w: &mut impl Write) -> IoResult<()>;
     /// Writes `Self` to a `&mut impl Write` in **BIG ENDIAN**.
@@ -313,7 +313,7 @@ impl ToEndianBytes for f128 {
     }
 }
 
-impl<T: ToEndianBytes, const N: usize> ToEndianBytes for [T; N] {
+impl<T: ToEndianBytes> ToEndianBytes for [T] {
     fn write_be_to(&self, w: &mut impl Write) -> IoResult<()> {
         for item in self {
             item.write_be_to(w)?;
