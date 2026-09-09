@@ -107,7 +107,80 @@ macro_rules! impl_from_endian_bytes {
 impl_from_endian_bytes!(u16, i16, u32, i32, u64, i64, u128, i128, f32, f64);
 
 #[cfg(nightly)]
-impl_from_endian_bytes!(f16, f128);
+impl FromEndianBytes for f16 {
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn read_be_from(r: &mut impl Read) -> IoResult<Self> {
+        let mut buf = [0u8; size_of::<Self>()];
+        r.read_exact(&mut buf)?;
+        Ok(f16::from_be_bytes(buf))
+    }
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn read_le_from(r: &mut impl Read) -> IoResult<Self> {
+        let mut buf = [0u8; size_of::<Self>()];
+        r.read_exact(&mut buf)?;
+        Ok(f16::from_le_bytes(buf))
+    }
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn read_ne_from(r: &mut impl Read) -> IoResult<Self> {
+        let mut buf = [0u8; size_of::<Self>()];
+        r.read_exact(&mut buf)?;
+        Ok(f16::from_ne_bytes(buf))
+    }
+}
+
+#[cfg(nightly)]
+impl FromEndianBytes for f128 {
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn read_be_from(r: &mut impl Read) -> IoResult<Self> {
+        let mut buf = [0u8; size_of::<Self>()];
+        r.read_exact(&mut buf)?;
+        Ok(f128::from_be_bytes(buf))
+    }
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn read_le_from(r: &mut impl Read) -> IoResult<Self> {
+        let mut buf = [0u8; size_of::<Self>()];
+        r.read_exact(&mut buf)?;
+        Ok(f128::from_le_bytes(buf))
+    }
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn read_ne_from(r: &mut impl Read) -> IoResult<Self> {
+        let mut buf = [0u8; size_of::<Self>()];
+        r.read_exact(&mut buf)?;
+        Ok(f128::from_ne_bytes(buf))
+    }
+}
+
+impl<F: FromEndianBytes, const N: usize> FromEndianBytes for [F; N]
+    where [F; N]: Default 
+{
+    fn read_be_from(r: &mut impl Read) -> IoResult<Self> {
+        let mut res: [F; N] = Default::default();
+        for item in &mut res {
+            *item = F::read_be_from(r)?;
+        }
+        Ok(res)
+    }
+    fn read_le_from(r: &mut impl Read) -> IoResult<Self> {
+        let mut res: [F; N] = Default::default();
+        for item in &mut res {
+            *item = F::read_le_from(r)?;
+        }
+        Ok(res)
+    }
+    fn read_ne_from(r: &mut impl Read) -> IoResult<Self> {
+        let mut res: [F; N] = Default::default();
+        for item in &mut res {
+            *item = F::read_ne_from(r)?;
+        }
+        Ok(res)
+    }
+}
 
 /// A trait for writing endian dependant bytes of a Sized type to a [Write] object.
 /// 
@@ -197,7 +270,69 @@ macro_rules! impl_to_endian_bytes {
 impl_to_endian_bytes!(u16, i16, u32, i32, u64, i64, u128, i128, f32, f64);
 
 #[cfg(nightly)]
-impl_to_endian_bytes!(f16, f128);
+impl ToEndianBytes for f16 {
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn write_be_to(&self, w: &mut impl Write) -> IoResult<()> {
+        let buf = self.to_be_bytes();
+        w.write_all(&buf)
+    }
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn write_le_to(&self, w: &mut impl Write) -> IoResult<()> {
+        let buf = self.to_le_bytes();
+        w.write_all(&buf)
+    }
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn write_ne_to(&self, w: &mut impl Write) -> IoResult<()> {
+        let buf = self.to_ne_bytes();
+        w.write_all(&buf)
+    }
+}
+
+#[cfg(nightly)]
+impl ToEndianBytes for f128 {
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn write_be_to(&self, w: &mut impl Write) -> IoResult<()> {
+        let buf = self.to_be_bytes();
+        w.write_all(&buf)
+    }
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn write_le_to(&self, w: &mut impl Write) -> IoResult<()> {
+        let buf = self.to_le_bytes();
+        w.write_all(&buf)
+    }
+    /// This function is only available when using a nightly Rust compiler
+    #[inline]
+    fn write_ne_to(&self, w: &mut impl Write) -> IoResult<()> {
+        let buf = self.to_ne_bytes();
+        w.write_all(&buf)
+    }
+}
+
+impl<T: ToEndianBytes, const N: usize> ToEndianBytes for [T; N] {
+    fn write_be_to(&self, w: &mut impl Write) -> IoResult<()> {
+        for item in self {
+            item.write_be_to(w)?;
+        }
+        Ok(())
+    }
+    fn write_le_to(&self, w: &mut impl Write) -> IoResult<()> {
+        for item in self {
+            item.write_le_to(w)?;
+        }
+        Ok(())
+    }
+    fn write_ne_to(&self, w: &mut impl Write) -> IoResult<()> {
+        for item in self {
+            item.write_ne_to(w)?;
+        }
+        Ok(())
+    }
+}
 
 /// This trait is used to automatically implement read_be, read_le and read_ne
 /// to any type that is `impl Read + Sized`.
